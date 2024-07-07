@@ -1,0 +1,36 @@
+name: Set Issue Label and Assignee
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label and assign issue based on title keyword
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const keyword = 'YouTube';  // Replace with your desired keyword
+            const labelToAdd = 'YouTube';  // Replace with the label you want to add
+            const assignee = 'MarvinSchenkel';  // Replace with the GitHub username to assign
+            const issueTitle = context.payload.issue.title;
+
+            if (issueTitle.includes(keyword)) {
+              // Add the label
+              await github.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                labels: [labelToAdd]
+              });
+              
+              // Add the assignee
+              await github.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                assignees: [assignee]
+              });
+            }
