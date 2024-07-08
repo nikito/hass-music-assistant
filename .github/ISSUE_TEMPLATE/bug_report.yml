@@ -38,9 +38,9 @@ body:
     validations:
       required: true
     attributes:
-      label: Have you tried everything in the [Troubleshooting FAQ](https://music-assistant.io/faq/troubleshooting/) and reviewed the Open and Closed Issues and Discussions to resolve this yourself?
+      label: Have you tried everything in the Troubleshooting FAQ and reviewed the Open and Closed Issues and Discussions to resolve this yourself?
       description: |
-        Explain below what you have tried and what did not help from the troubleshooting steps
+        Explain below what you have tried and what did not help from the [troubleshooting](https://music-assistant.io/faq/troubleshooting/) steps
       options:
         - label: "Yes"
           required: true
