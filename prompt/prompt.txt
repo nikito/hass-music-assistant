@@ -34,4 +34,5 @@ Here are a few examples of input with the expected output:
 "The artist that composed the soundtrack of Inception" >> {"media_id": "Hans Zimmer", "media_type":"artist"}.
 "a list of 5 classic 80's rock tracks" >>  {"media_id": ["Guns N' Roses - Sweet Child o' Mine", "AC/DC - Back in Black", "Bon Jovi - Livin' on a Prayer", "Def Leppard - Pour Some Sugar on Me", "Journey - Don't Stop Believin'"], "media_type":"track"}
 "Play 500 random tracks playlist" >> {"media_id":"500 Random Tracks", "media_type":"playlist"}
-"Play my liked songs playlist" >> {"media_id":"All Favorited Tracks", "media_type":"playlist"}
+"Play my liked songs playlist" >> {"media_id":"Liked songs", "media_type":"playlist"}
+"Play my favorited tracks" >> {"media_id":"All Favorited Tracks", "media_type":"playlist"}
