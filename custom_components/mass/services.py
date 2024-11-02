@@ -2,21 +2,28 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, cast
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import (
     HomeAssistant,
+    ServiceCall,
     ServiceResponse,
     SupportsResponse,
     callback,
 )
-from homeassistant.helpers.service import ServiceCall
-from music_assistant.common.models.enums import MediaType
+from homeassistant.exceptions import HomeAssistantError
+from music_assistant_client.helpers import searchresults_as_compact_dict
+from music_assistant_models.enums import MediaType
 
 from .const import DOMAIN
-from .helpers import get_mass
+
+if TYPE_CHECKING:
+    from music_assistant_client import MusicAssistantClient
+
+    from . import MusicAssistantConfigEntry
 
 SERVICE_SEARCH = "search"
 ATTR_MEDIA_TYPE = "media_type"
@@ -28,12 +35,23 @@ ATTR_LIBRARY_ONLY = "library_only"
 
 
 @callback
+def get_music_assistant_client(hass: HomeAssistant) -> MusicAssistantClient:
+    """Get the (first) Music Assistant client from the (loaded) config entries."""
+    entry: MusicAssistantConfigEntry
+    for entry in hass.config_entries.async_entries(DOMAIN, False, False):
+        if entry.state != ConfigEntryState.LOADED:
+            continue
+        return entry.runtime_data.mass
+    raise HomeAssistantError("Music Assistant is not loaded")
+
+
+@callback
 def register_services(hass: HomeAssistant) -> None:
     """Register custom services."""
 
     async def handle_search(call: ServiceCall) -> ServiceResponse:
         """Handle queue_command service."""
-        mass = get_mass(hass)
+        mass = get_music_assistant_client(hass)
         search_name = call.data[ATTR_SEARCH_NAME]
         search_artist = call.data.get(ATTR_SEARCH_ARTIST)
         search_album = call.data.get(ATTR_SEARCH_ALBUM)
@@ -43,43 +61,14 @@ def register_services(hass: HomeAssistant) -> None:
             search_name = f"{search_album} - {search_name}"
         elif search_artist:
             search_name = f"{search_artist} - {search_name}"
-        result = await mass.music.search(
+        search_results = await mass.music.search(
             search_query=search_name,
             media_types=call.data.get(ATTR_MEDIA_TYPE, MediaType.ALL),
             limit=call.data[ATTR_LIMIT],
             library_only=call.data[ATTR_LIBRARY_ONLY],
         )
-
         # return limited result to prevent it being too verbose
-        def compact_item(item: dict[str, Any]) -> dict[str, Any]:
-            """Return compacted MediaItem dict."""
-            for key in (
-                "metadata",
-                "provider_mappings",
-                "favorite",
-                "timestamp_added",
-                "timestamp_modified",
-                "mbid",
-            ):
-                item.pop(key, None)
-            for key, value in item.items():
-                if isinstance(value, dict):
-                    item[key] = compact_item(value)
-                elif isinstance(value, list):
-                    for subitem in value:
-                        if not isinstance(subitem, dict):
-                            continue
-                        compact_item(subitem)
-                    # item[key] = [compact_item(x) if isinstance(x, dict) else x for x in value]
-            return item
-
-        dict_result: dict[str, list[dict[str, Any]]] = result.to_dict()
-        for media_type_key in dict_result:
-            for item in dict_result[media_type_key]:
-                if not isinstance(item, dict):
-                    continue
-                compact_item(item)
-        return dict_result
+        return cast(ServiceResponse, searchresults_as_compact_dict(search_results))
 
     hass.services.async_register(
         DOMAIN,

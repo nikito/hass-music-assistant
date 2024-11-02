@@ -9,7 +9,7 @@ classifiers = [
 dependencies = [
   "async_timeout",
   "homeassistant",
-  "music-assistant",
+  "music-assistant-client",
 ]
 description = "Music Assistant Home Assistant Integration"
 license = {text = "Apache-2.0"}

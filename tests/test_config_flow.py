@@ -10,7 +10,7 @@ import pytest
 # pylint: disable=wrong-import-order
 from homeassistant.components import zeroconf
 from homeassistant.helpers.selector import ConversationAgentSelector
-from music_assistant.client.exceptions import CannotConnect, InvalidServerVersion
+from music_assistant_client.exceptions import CannotConnect, InvalidServerVersion
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.mass import config_flow
