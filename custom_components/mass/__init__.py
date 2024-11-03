@@ -24,8 +24,8 @@ from music_assistant_client.exceptions import CannotConnect, InvalidServerVersio
 from music_assistant_models.enums import EventType
 from music_assistant_models.errors import MusicAssistantError
 
+from .actions import register_actions
 from .const import DOMAIN, LOGGER
-from .services import register_services
 
 if TYPE_CHECKING:
     from music_assistant_models.event import MassEvent
@@ -50,8 +50,8 @@ type MusicAssistantConfigEntry = ConfigEntry[MusicAssistantEntryData]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Music Assistant component."""
-    # register our (custom) services
-    register_services(hass)
+    # register our (custom) actions/services
+    register_actions(hass)
     return True
 
 
