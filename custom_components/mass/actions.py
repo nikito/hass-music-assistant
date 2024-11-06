@@ -26,7 +26,6 @@ if TYPE_CHECKING:
     from . import MusicAssistantConfigEntry
 
 SERVICE_SEARCH = "search"
-SERVICE_GET_QUEUE = "get_queue"
 SERVICE_GET_LIBRARY = "get_library"
 ATTR_MEDIA_TYPE = "media_type"
 ATTR_SEARCH_NAME = "name"
@@ -34,7 +33,6 @@ ATTR_SEARCH_ARTIST = "artist"
 ATTR_SEARCH_ALBUM = "album"
 ATTR_LIMIT = "limit"
 ATTR_LIBRARY_ONLY = "library_only"
-ATTR_QUEUE_ID = "queue_id"
 
 
 @callback
@@ -52,7 +50,6 @@ def get_music_assistant_client(hass: HomeAssistant) -> MusicAssistantClient:
 def register_actions(hass: HomeAssistant) -> None:
     """Register custom actions."""
     register_search_action(hass)
-    register_get_queue_action(hass)
     register_get_library_action(hass)
 
 
@@ -94,30 +91,6 @@ def register_search_action(hass: HomeAssistant) -> None:
                 vol.Optional(ATTR_SEARCH_ALBUM): cv.string,
                 vol.Optional(ATTR_LIMIT, default=5): vol.Coerce(int),
                 vol.Optional(ATTR_LIBRARY_ONLY, default=False): cv.boolean,
-            }
-        ),
-        supports_response=SupportsResponse.ONLY,
-    )
-
-
-def register_get_queue_action(hass: HomeAssistant) -> None:
-    """Register get_queue action."""
-
-    async def handle_get_queue(call: ServiceCall) -> ServiceResponse:
-        """Handle get_queue action."""
-        mass = get_music_assistant_client(hass)
-        queue_id = call.data.get(ATTR_QUEUE_ID)
-        if queue_id and (queue := mass.player_queues.get(queue_id)):
-            return cast(ServiceResponse, queue.to_dict())
-        raise HomeAssistantError(f"Queue with ID {queue_id} not found")
-
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_GET_QUEUE,
-        handle_get_queue,
-        schema=vol.Schema(
-            {
-                vol.Required(ATTR_QUEUE_ID): cv.string,
             }
         ),
         supports_response=SupportsResponse.ONLY,

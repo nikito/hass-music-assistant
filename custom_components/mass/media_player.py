@@ -7,7 +7,7 @@ import functools
 import os
 from collections.abc import Awaitable, Callable, Coroutine, Mapping
 from contextlib import suppress
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
@@ -31,7 +31,7 @@ from homeassistant.components.media_player import (
 )
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import STATE_OFF
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceResponse, SupportsResponse
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import (
@@ -88,6 +88,7 @@ QUEUE_OPTION_MAP = {
 SERVICE_PLAY_MEDIA_ADVANCED = "play_media"
 SERVICE_PLAY_ANNOUNCEMEMT = "play_announcement"
 SERVICE_TRANSFER_QUEUE = "transfer_queue"
+SERVICE_GET_QUEUE = "get_queue"
 ATTR_RADIO_MODE = "radio_mode"
 ATTR_MEDIA_ID = "media_id"
 ATTR_MEDIA_TYPE = "media_type"
@@ -100,9 +101,9 @@ ATTR_SOURCE_PLAYER = "source_player"
 ATTR_AUTO_PLAY = "auto_play"
 
 
-def catch_musicassistant_error[_R, **P](
-    func: Callable[..., Awaitable[_R]],
-) -> Callable[..., Coroutine[Any, Any, _R | None]]:
+def catch_musicassistant_error[
+    _R, **P
+](func: Callable[..., Awaitable[_R]]) -> Callable[..., Coroutine[Any, Any, _R | None]]:
     """Check and log commands to players."""
 
     @functools.wraps(func)
@@ -182,6 +183,11 @@ async def async_setup_entry(
             vol.Optional(ATTR_AUTO_PLAY): vol.Coerce(bool),
         },
         "_async_handle_transfer_queue",
+    )
+    platform.async_register_entity_service(
+        SERVICE_GET_QUEUE,
+        schema=None,
+        supports_response=SupportsResponse.ONLY,
     )
 
 
@@ -419,6 +425,19 @@ class MusicAssistantPlayer(MusicAssistantBaseEntity, MediaPlayerEntity):
         """Remove this player from any group."""
         await self.mass.players.player_command_unsync(self.player_id)
 
+    async def async_browse_media(
+        self,
+        media_content_type: MediaType | str | None = None,
+        media_content_id: str | None = None,
+    ) -> BrowseMedia:
+        """Implement the websocket media browsing helper."""
+        return await async_browse_media(
+            self.hass,
+            self.mass,
+            media_content_id,
+            media_content_type,
+        )
+
     @catch_musicassistant_error
     async def _async_handle_play_media(
         self,
@@ -518,18 +537,12 @@ class MusicAssistantPlayer(MusicAssistantBaseEntity, MediaPlayerEntity):
             source_queue_id, target_queue_id, auto_play
         )
 
-    async def async_browse_media(
-        self,
-        media_content_type: MediaType | str | None = None,
-        media_content_id: str | None = None,
-    ) -> BrowseMedia:
-        """Implement the websocket media browsing helper."""
-        return await async_browse_media(
-            self.hass,
-            self.mass,
-            media_content_id,
-            media_content_type,
-        )
+    @catch_musicassistant_error
+    async def handle_get_queue(self) -> ServiceResponse:
+        """Handle get_queue action."""
+        if not self.active_queue:
+            raise HomeAssistantError("No active queue found")
+        return cast(ServiceResponse, self.active_queue.to_dict())
 
     def _update_media_image_url(
         self, player: Player, queue: PlayerQueue | None
