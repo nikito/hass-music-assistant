@@ -101,9 +101,9 @@ ATTR_SOURCE_PLAYER = "source_player"
 ATTR_AUTO_PLAY = "auto_play"
 
 
-def catch_musicassistant_error[
-    _R, **P
-](func: Callable[..., Awaitable[_R]]) -> Callable[..., Coroutine[Any, Any, _R | None]]:
+def catch_musicassistant_error[_R, **P](
+    func: Callable[..., Awaitable[_R]],
+) -> Callable[..., Coroutine[Any, Any, _R | None]]:
     """Check and log commands to players."""
 
     @functools.wraps(func)
@@ -187,6 +187,7 @@ async def async_setup_entry(
     platform.async_register_entity_service(
         SERVICE_GET_QUEUE,
         schema=None,
+        func="_async_handle_get_queue",
         supports_response=SupportsResponse.ONLY,
     )
 
@@ -543,7 +544,7 @@ class MusicAssistantPlayer(MusicAssistantBaseEntity, MediaPlayerEntity):
         )
 
     @catch_musicassistant_error
-    async def handle_get_queue(self) -> ServiceResponse:
+    async def _async_handle_get_queue(self) -> ServiceResponse:
         """Handle get_queue action."""
         if not self.active_queue:
             raise HomeAssistantError("No active queue found")
