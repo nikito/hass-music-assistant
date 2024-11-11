@@ -40,5 +40,5 @@ Here are a few examples of input with the expected output:
 "Play 500 random tracks playlist" >> {"media_id":"500 Random Tracks", "media_type":"playlist"}
 "Play my liked songs playlist" >> {"media_id":"Liked songs", "media_type":"playlist"}
 "Play my favorited tracks" >> {"media_id":"All Favorited Tracks", "media_type":"playlist"}
-"Play the Hallmark station" >> {"media_id":"Hallmark", media_type":"radio"}
+"Play the Hallmark radio station" >> {"media_id":"Hallmark", media_type":"radio"}
 "Play the Holly radio station" >> {"media_id":"Holly", "media_type":"radio"}
