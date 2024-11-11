@@ -59,6 +59,7 @@ if TYPE_CHECKING:
 SUPPORTED_FEATURES = (
     MediaPlayerEntityFeature.PAUSE
     | MediaPlayerEntityFeature.VOLUME_SET
+    | MediaPlayerEntityFeature.VOLUME_MUTE
     | MediaPlayerEntityFeature.STOP
     | MediaPlayerEntityFeature.PREVIOUS_TRACK
     | MediaPlayerEntityFeature.NEXT_TRACK

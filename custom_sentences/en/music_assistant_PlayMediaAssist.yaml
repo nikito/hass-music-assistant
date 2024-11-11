@@ -5,25 +5,25 @@ intents:
 
       # TARGET AN AREA
       - sentences:
-          - "<play> <artist> {artist} in [the ]<area>"
-          - "<play> <album> {album} [by <artist> {artist}] in [the ]<area>"
-          - "<play> <track> {track} [by <artist> {artist}] in [the ]<area>"
-          - "<play> <playlist> {playlist} in [the ]<area>"
+          - "<play> <artist> {artist} in [the ]<area> [((with)|(using)) {radio_mode}]"
+          - "<play> <album> {album} [by <artist> {artist}] in [the ]<area> [((with)|(using)) {radio_mode}]"
+          - "<play> <track> {track} [by <artist> {artist}] in [the ]<area> [((with)|(using)) {radio_mode}]"
+          - "<play> <playlist> {playlist} in [the ]<area> [((with)|(using)) {radio_mode}]"
           - "<play> <radio_station> {radio} in [the ]<area>"
         expansion_rules:
           play: "((play)|(listen to))"
           artist: "[the ](artist|band|group)"
           track: "[the ](track|song)"
-          album: "[the ](album|ep|record)"
+          album: "[the ](album|ep|record|compilation|single)"
           playlist: "[the ]playlist"
           radio_station: "[the ]((radio station)|(radio)|(station))"
 
       # TARGET A NAME
       - sentences:
-          - "<play> <artist> {artist} <on> [the ]{name} [<player_devices>]"
-          - "<play> <album> {album} [by <artist> {artist}] <on> [the ]{name} [<player_devices>]"
-          - "<play> <track> {track} [by <artist> {artist}] <on> [the ]{name} [<player_devices>]"
-          - "<play> <playlist> {playlist} <on> [the ]{name} [<player_devices>]"
+          - "<play> <artist> {artist} <on> [the ]{name} [<player_devices>] [((with)|(using)) {radio_mode}]"
+          - "<play> <album> {album} [by <artist> {artist}] <on> [the ]{name} [<player_devices>] [((with)|(using)) {radio_mode}]"
+          - "<play> <track> {track} [by <artist> {artist}] <on> [the ]{name} [<player_devices>] [((with)|(using)) {radio_mode}]"
+          - "<play> <playlist> {playlist} <on> [the ]{name} [<player_devices>] [((with)|(using)) {radio_mode}]"
           - "<play> <radio_station> {radio} <on> [the ]{name} [<player_devices>]"
         expansion_rules:
           play: "((play)|(listen to))"
@@ -31,24 +31,41 @@ intents:
           "on": "(on|using)"
           artist: "[the ](artist|band|group)"
           track: "[the ](track|song)"
-          album: "[the ](album|ep|record)"
+          album: "[the ](album|ep|record|compilation|single)"
           playlist: "[the ]playlist"
           radio_station: "[the ]((radio station)|(radio)|(station))"
         requires_context:
           domain: "media_player"
 
+      # TARGET AN AREA AND A NAME
+      - sentences:
+          - "<play> <artist> {artist} in [the ]<area> <on> [the ]{name} [<player_devices>] [((with)|(using)) {radio_mode}]"
+          - "<play> <album> {album} [by <artist> {artist}] in [the ]<area> <on> [the ]{name} [<player_devices>] [((with)|(using)) {radio_mode}]"
+          - "<play> <track> {track} [by <artist> {artist}] in [the ]<area> <on> [the ]{name} [<player_devices>][((with)|(using)) {radio_mode}]"
+          - "<play> <playlist> {playlist} in [the ]<area> <on> [the ]{name} [<player_devices>][((with)|(using)) {radio_mode}]"
+          - "<play> <radio_station> {radio} in [the ]<area> <on> [the ]{name} [<player_devices>]"
+        expansion_rules:
+          play: "((play)|(listen to))"
+          player_devices: "((speaker)|([media] player))"
+          "on": "(on|using)"
+          artist: "[the ](artist|band|group)"
+          track: "[the ](track|song)"
+          album: "[the ](album|ep|record|compilation|single)"
+          playlist: "[the ]playlist"
+          radio_station: "[the ]((radio station)|(radio)|(station))"
+
       # CONTEXT AWARNESS
       - sentences:
-          - "<play> <artist> {artist}"
-          - "<play> <album> {album} [by <artist> {artist}]"
-          - "<play> <track> {track} [by <artist> {artist}]"
-          - "<play> <playlist> {playlist}"
+          - "<play> <artist> {artist} [((with)|(using)) {radio_mode}]"
+          - "<play> <album> {album} [by <artist> {artist}] [((with)|(using)) {radio_mode}]"
+          - "<play> <track> {track} [by <artist> {artist}] [((with)|(using)) {radio_mode}]"
+          - "<play> <playlist> {playlist} [((with)|(using)) {radio_mode}]"
           - "<play> <radio_station> {radio}"
         expansion_rules:
           play: "((play)|(listen to))"
           artist: "[the ](artist|band|group)"
           track: "[the ](track|song)"
-          album: "[the ](album|ep|record)"
+          album: "[the ](album|ep|record|compilation|single)"
           playlist: "[the ]playlist"
           radio_station: "[the ]((radio station)|(radio)|(station))"
         requires_context:
@@ -65,3 +82,6 @@ lists:
     wildcard: true
   radio:
     wildcard: true
+  radio_mode:
+    values:
+      - "radio mode"
